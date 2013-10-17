@@ -23,14 +23,31 @@
         speed: 500,
         handleSelector: '',
         position: 'right',
+        status: 'open',
         hoverIntent: {enabled: false}
       };
       $.extend(this.s, defaults, s);
 
-      console.log(this.s);
-
       // Create the elements
-      this.setCss();
+      this.constructDrawer();
+
+      // Get dimentions
+      this.dims.w = this.stuff.outerWidth();
+      this.dims.h = this.stuff.outerHeight();
+
+      this.setPosition();
+
+      // Bind listeners
+      this.listenHover();
+      this.listenClick();
+      this.listenResize();
+    },
+
+    /**
+     * Build the HTML elements
+     */
+    constructDrawer: function() {
+      this.addClass('drawer');
       this.handle = $('.handle', this).clone();
       this.stuff  = $('<div></div>', {'class': 'stuff'});
       $('.handle', this).remove();
@@ -38,28 +55,6 @@
       // Put all the stuff in the drawer.
       this.stuff.html(this.html());
       this.html('').append(this.stuff);
-
-      // Add the handle
-      this.handle.html(this.s.handleText);
-      this.prepend(this.handle);
-
-      // Get dimentions
-      this.dims.w = this.stuff.outerWidth();
-      this.dims.h = this.stuff.outerHeight();
-
-      // Bind listeners
-      this.listenHover();
-      this.listenClick();
-    },
-
-    /**
-     * Set the initial state CSS for the drawer.
-     */
-    setCss: function() {
-      this.addClass('drawer').addClass(this.s.position);
-      this.css({
-        'position': 'relative'
-      });
     },
 
     /**
@@ -94,18 +89,105 @@
     },
 
     /**
+     * Listen for the window to resize.
+     */
+    listenResize: function() {
+      var self = this;
+
+      $(window).resize(function() {
+        self.setPosition();
+      });
+    },
+
+    /**
+     * Set the CSS attributes for the current drawer position.
+     */
+    setPosition: function() {
+      var w = $(window).width();
+
+      // Adjust for breakpoints
+      if (typeof this.s.breakpoints != 'undefined') {
+        for (i in this.s.breakpoints) {
+          if (w < this.s.breakpoints[i].max && w >= this.s.breakpoints[i].min) {
+            this.s.position = this.s.breakpoints[i].position;
+            this.s.status   = this.s.breakpoints[i].status;
+
+            // Reset hard positioning
+            this.css({'left':'', 'right':'', 'top':'', 'bottom':''});
+          }
+        }
+      }
+
+      // Reset classes
+      this.removeClass('top right left bottom');
+      this.addClass(this.s.position);
+
+      // Set the starting status
+      if (this.s.status == 'open') {
+        this.open(0);
+      }
+      else {
+        this.close(0);
+      }
+
+      // Set the handle position
+      if (this.s.position == 'top') {
+        this.append(this.handle);
+      }
+      else {
+        this.prepend(this.handle);
+      }
+    },
+
+    /**
      * Open the drawer.
      */
-    open: function() {
-      this.animate({right: '0'}, this.s.speed).addClass('open').removeClass('closed');
+    open: function(speed) {
+      speed = typeof speed == 'undefined' ? this.s.speed : speed;
+
+      console.log(speed);
+
+      switch (this.s.position) {
+        case 'top':
+          this.animate({top: 0}, speed);
+          break;
+        case 'right':
+          this.animate({right: 0}, speed);
+          break;
+        case 'bottom':
+          this.animate({bottom: 0}, speed);
+          break;
+        case 'left':
+        default:
+          this.animate({left: 0}, speed);
+          break;
+      }
+      this.addClass('open').removeClass('closed');
       this.isOpen = true;
     },
 
     /**
      * Close the drawer.
      */
-    close: function() {
-      this.animate({right: -(this.dims.w)}, this.s.speed).addClass('closed').removeClass('open');
+    close: function(speed) {
+      speed = typeof speed == 'undefined' ? this.s.speed : speed;
+
+      switch (this.s.position) {
+        case 'top':
+          this.animate({top: -(this.dims.h)}, speed);
+          break;
+        case 'right':
+          this.animate({right: -(this.dims.w)}, speed);
+          break;
+        case 'bottom':
+          this.animate({bottom: -(this.dims.h)}, speed);
+          break;
+        case 'left':
+        default:
+          this.animate({left: -(this.dims.w)}, speed);
+          break;
+      }
+      this.addClass('closed').removeClass('open');
       this.isOpen = false;
     }
   }

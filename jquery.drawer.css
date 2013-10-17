@@ -1,70 +1,22 @@
 .drawer {
-  float: right;
-  margin-right: 0;
-  border-radius: 1em 0 0 1em;
+  position: fixed;
   overflow: hidden;
-  right: 0;
-  max-width: 20em;
-  position: relative;
-  padding: 0;
 }
-.drawer .handle {
-  width: 2em;
-  background-color: rgba(0, 0, 0, 0.5);
-  margin-right: .5em;
+.drawer.top {
+  top: 0;
+}
+.drawer.right {
+  right: 0;
+}
+.drawer.right .handle {
   float: left;
 }
-.drawer .handle span {
-  -webkit-transform: rotate(90deg);
-  -moz-transform: rotate(90deg);
-  -ms-transform: rotate(90deg);
-  -o-transform: rotate(90deg);
-  transform: rotate(90deg);
-  -webkit-transform-origin: 0 100%;
-  -moz-transform-origin: 0 100%;
-  -ms-transform-origin: 0 100%;
-  -o-transform-origin: 0 100%;
-  transform-origin: 0 100%;
-  display: block;
-  min-width: 5em;
-  text-align: center;
-  margin-top: -1.5em;
-  padding-bottom: .2em;
+.drawer.bottom {
+  bottom: 0;
 }
-.drawer .handle i {
-  position: absolute;
+.drawer.left {
+  left: 0;
 }
-.drawer .handle i:first-child {
-  top: 1em;
-}
-.drawer .handle i:last-child {
-  bottom: 1em;
-}
-.drawer .stuff {
-  padding: 1em;
-}
-.drawer ul {
-  margin: 0;
-  padding-left: 0;
-}
-.drawer ul li {
-  list-style: none;
-  list-style-image: none;
-  margin-left: 0;
-  padding-left: 0;
-}
-.drawer ul li a {
-  display: block;
-  margin: 1px 0;
-  padding: .25em 1em;
-  background-color: rgba(0, 0, 0, 0.38);
-  border-radius: .25em;
-  border: 1px solid transparent;
-  overflow: auto;
-  -webkit-transition: all 0.38s;
-  -moz-transition: all 0.38s;
-  transition: all 0.38s;
-}
-.drawer ul li a:hover {
-  background-color: rgba(0, 0, 0, 0.62);
+.drawer.left .handle {
+  float: right;
 }
