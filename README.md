@@ -12,6 +12,7 @@ Create an element on your page with another element inside that has the CSS clas
 of .handle.
 
 **Example**
+
     <aside id="sidebar">
       <div class="handle">Open/Close</div>
       ... other stuff ...
@@ -72,6 +73,7 @@ window resizes, to help with responsive designs by using the following method.
     $(element).setDrawerPosition(position, status)
 
 **Example**
+
     $(window).resize(function() {
       var w = $(this).width();
 
