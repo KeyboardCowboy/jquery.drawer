@@ -21,9 +21,9 @@
       // Declare the settings
       var defaults = {
         speed: 500,
-        handleSelector: '',
         position: 'right',
         status: 'open',
+        adjustMargins: true,
         hoverIntent: {enabled: false}
       };
       $.extend(this.s, defaults, s);
@@ -31,16 +31,12 @@
       // Create the elements
       this.constructDrawer();
 
-      // Get dimentions
-      this.dims.w = this.stuff.outerWidth();
-      this.dims.h = this.stuff.outerHeight();
-
-      this.setPosition();
+      // Position the drawer
+      this.setDrawerPosition(this.s.position, this.s.status, true);
 
       // Bind listeners
       this.listenHover();
       this.listenClick();
-      this.listenResize();
     },
 
     /**
@@ -89,53 +85,98 @@
     },
 
     /**
-     * Listen for the window to resize.
+     * Set the CSS attributes for the current drawer position.
      */
-    listenResize: function() {
-      var self = this;
+    setDrawerPosition: function(newPos, newStatus, force) {
+      var change = false;
+      force = force || false;
 
-      $(window).resize(function() {
-        self.setPosition();
-      });
+      // If the status is changing
+      if (typeof newStatus != 'undefined') {
+        this.s.status = newStatus;
+        change = true;
+      }
+
+      // If the position is changing
+      if (this.s.position != newPos || force) {
+        this.s.position = newPos;
+
+        // Reset classes and hard positioning
+        this.removeClass('top right left bottom');
+        this.addClass(this.s.position);
+        this.css({'left':'', 'right':'', 'top':'', 'bottom':''});
+
+        // Get dimentions
+        this.getDimentions();
+
+        switch (this.s.position) {
+          case 'top':
+            this.handle.width('auto');
+            this.append(this.handle);
+            break;
+          case 'right':
+            this.handle.width(this.dims.h);
+            this.prepend(this.handle);
+            break;
+          case 'bottom':
+            this.handle.width('auto');
+            this.prepend(this.handle);
+            break;
+          case 'left':
+            this.handle.width(this.dims.h);
+            this.prepend(this.handle);
+            break;
+        }
+
+        // Adjust magins if necessary
+        this.adjustMargins();
+
+        change = true;
+      }
+
+      // If either setting changed, check the open/close status
+      if (change) {
+        // Set the open/closed state
+        if (this.s.status == 'open') {
+          this.open(0);
+        }
+        else {
+          this.close(0);
+        }
+      }
     },
 
     /**
-     * Set the CSS attributes for the current drawer position.
+     * Store the dimentions of the drawer for positioning.
      */
-    setPosition: function() {
-      var w = $(window).width();
+    getDimentions: function() {
+      this.dims.w = this.stuff.outerWidth();
+      this.dims.h = this.stuff.outerHeight();
+    },
 
-      // Adjust for breakpoints
-      if (typeof this.s.breakpoints != 'undefined') {
-        for (i in this.s.breakpoints) {
-          if (w < this.s.breakpoints[i].max && w >= this.s.breakpoints[i].min) {
-            this.s.position = this.s.breakpoints[i].position;
-            this.s.status   = this.s.breakpoints[i].status;
-
-            // Reset hard positioning
-            this.css({'left':'', 'right':'', 'top':'', 'bottom':''});
-          }
-        }
+    /**
+     * Adjust the margins for certain positions.
+     */
+    adjustMargins: function() {
+      if (!this.s.adjustMargins) {
+        return;
       }
 
-      // Reset classes
-      this.removeClass('top right left bottom');
-      this.addClass(this.s.position);
-
-      // Set the starting status
-      if (this.s.status == 'open') {
-        this.open(0);
-      }
-      else {
-        this.close(0);
-      }
-
-      // Set the handle position
-      if (this.s.position == 'top') {
-        this.append(this.handle);
-      }
-      else {
-        this.prepend(this.handle);
+      switch (this.s.position) {
+        case 'top':
+          $('body').css('margin-top', this.handle.outerHeight());
+          break;
+        case 'right':
+          $('body').css('margin-top', '');
+          $('body').css('margin-bottom', '');
+          break;
+        case 'bottom':
+          $('body').css('margin-bottom', this.handle.outerHeight());
+          break;
+        case 'left':
+          $('body').css('margin-top', '');
+          $('body').css('margin-bottom', '');
+          break;
       }
     },
 
@@ -144,8 +185,6 @@
      */
     open: function(speed) {
       speed = typeof speed == 'undefined' ? this.s.speed : speed;
-
-      console.log(speed);
 
       switch (this.s.position) {
         case 'top':
@@ -172,6 +211,9 @@
     close: function(speed) {
       speed = typeof speed == 'undefined' ? this.s.speed : speed;
 
+      // Recalculate the dimentions.
+      this.getDimentions();
+
       switch (this.s.position) {
         case 'top':
           this.animate({top: -(this.dims.h)}, speed);
@@ -196,13 +238,10 @@
    * Extend the function to elements.
    */
   $.fn.drawer = function(s) {
-    var e = $(this);
-
     // Make sure we have an object for settings
     s = typeof s != 'object' ? {} : s;
-
-    $.extend(true,e, new Drawer);
-    e.drawer(s);
+    $.extend(true, this, new Drawer);
+    this.drawer(s);
   }
 })(jQuery);
 
