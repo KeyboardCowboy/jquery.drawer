@@ -59,7 +59,7 @@
     listenHover: function() {
       var drawer = this;
 
-      if (this.s.hoverIntent.enabled) {
+      if (this.s.hoverIntent.enabled && !!$.prototype.hoverIntent) {
         // @todo: add hoverIntent settings
         this.hoverIntent(function() {drawer.open()}, function() {drawer.close()});
       }
